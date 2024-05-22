@@ -3,6 +3,18 @@
 version = 3
 
 [[package]]
+name = "enum_const_value"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "799c45f31b3996494ce0b7ef4f04a7744d7a546a0aea07e01af917c70ea27a9d"
+dependencies = [
+ "proc-macro2",
+ "proc_macro2_helper",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -15,6 +27,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b33eb56c327dec362a9e55b3ad14f9d2f0904fb5a5b03b513ab5465399e9f43"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "proc_macro2_helper"
+version = "0.2.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79528bef70da112116feb5ecb6b64f1394e5360660d6474a760789ea07885501"
+dependencies = [
+ "proc-macro2",
+ "syn",
 ]
 
 [[package]]
@@ -65,10 +87,12 @@ dependencies = [
 
 [[package]]
 name = "swift_localizable_json_parser"
-version = "0.1.0"
+version = "0.1.22"
 dependencies = [
+ "enum_const_value",
  "serde",
  "serde_json",
+ "words-count",
 ]
 
 [[package]]
@@ -83,7 +107,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicode-blocks"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b12e05d9e06373163a9bb6bb8c263c261b396643a99445fe6b9811fd376581b"
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "words-count"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d28653ddaede5475c44a03e4014ae19f35aa9b231c423228b28963cb873e4869"
+dependencies = [
+ "unicode-blocks",
+]
