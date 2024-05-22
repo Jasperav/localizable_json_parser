@@ -1,0 +1,10 @@
+<resources>
+<string name="inlined_no_translation_weird_charss">Inlined no translation % weird charss:</string>
+<string name="inlined_with_an_actual_translation">Inlined with an actual translation</string>
+<string name="inlined_with_an_inlined_base_language">Keys to localize: %1$d (%2$d%%)</string>
+<plurals name="amount_favorite_riddles">
+<item quantity="one">%1$d favorite riddle</item>
+<item quantity="other">%1$d favorite riddles</item>
+</plurals>
+<string name="average_guessing_time">Average guessing time</string>
+</resources>

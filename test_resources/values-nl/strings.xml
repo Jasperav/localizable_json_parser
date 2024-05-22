@@ -1,4 +1,5 @@
 <resources>
+<string name="inlined_with_an_actual_translation">Ingelijnd</string>
 <plurals name="amount_favorite_riddles">
 <item quantity="one">%1$d favoriet raadsel</item>
 <item quantity="other">%1$d favoriete raadsels</item>

@@ -1,6 +1,30 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+      "Inlined no translation % weird charss:": {
+
+      },
+      "Inlined with an actual translation": {
+      "comment": "some random comment",
+        "localizations" : {
+          "nl" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Ingelijnd"
+            }
+          }
+        }
+      },
+       "Inlined with an inlined  base language": {
+        "localizations" : {
+            "en" : {
+              "stringUnit" : {
+                "state" : "new",
+                "value" : "Keys to localize: %1$lld (%2$lld%%)"
+              }
+            }
+          }
+      },
     "amount_favorite_riddles" : {
       "localizations" : {
         "en" : {
@@ -57,5 +81,6 @@
         }
       }
     }
-  }
+  },
+  "version": "1.0"
 }

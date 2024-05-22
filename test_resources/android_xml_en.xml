@@ -1,7 +1,0 @@
-<resources>
-<plurals name="amount_favorite_riddles">
-<item quantity="one">%1$d favorite riddle</item>
-<item quantity="other">%1$d favorite riddles</item>
-</plurals>
-<string name="average_guessing_time">Average guessing time</string>
-</resources>
