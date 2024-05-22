@@ -18,7 +18,10 @@ mod parse {
     use std::collections::HashMap;
 
     use crate::types::input::{StringUnit, Translation};
-    use crate::types::output::{Localizable, LocalizationValue, PluralVariate, SinglePluralVariation, SingleTranslation, TranslationValue};
+    use crate::types::output::{
+        Localizable, LocalizationValue, PluralVariate, SinglePluralVariation, SingleTranslation,
+        TranslationValue,
+    };
 
     pub(crate) fn from_string(translations: String) -> Localizable {
         let translations: Translation = serde_json::from_str(&translations).unwrap();
@@ -40,22 +43,26 @@ mod parse {
                 } else {
                     assert_eq!(key, "variations");
 
-                    let variations: HashMap<String, serde_json::Value> = serde_json::from_value(value).unwrap();
+                    let variations: HashMap<String, serde_json::Value> =
+                        serde_json::from_value(value).unwrap();
 
                     assert_eq!(1, variations.len());
 
                     let value = variations.get("plural").unwrap().clone();
-                    let plural: HashMap<String, serde_json::Value> = serde_json::from_value(value).unwrap();
+                    let plural: HashMap<String, serde_json::Value> =
+                        serde_json::from_value(value).unwrap();
                     let mut variations: Vec<_> = Default::default();
 
                     for (variation, object) in plural {
                         let variate = match variation.as_str() {
                             "one" => PluralVariate::One,
                             "other" => PluralVariate::Other,
-                            _ => panic!("Unknown variant: {:#?}", variation)
+                            _ => panic!("Unknown variant: {:#?}", variation),
                         };
 
-                        let translation_value = extract_translation(object.as_object().unwrap().get("stringUnit").unwrap());
+                        let translation_value = extract_translation(
+                            object.as_object().unwrap().get("stringUnit").unwrap(),
+                        );
 
                         variations.push(SinglePluralVariation {
                             variate,
@@ -63,19 +70,25 @@ mod parse {
                         });
                     }
 
-                    variations.sort_by(|a, b| a.variate.android_key().cmp(&b.variate.android_key()));
+                    variations
+                        .sort_by(|a, b| a.variate.android_key().cmp(&b.variate.android_key()));
 
                     crate::types::output::Translation::PluralVariation(variations)
                 };
 
-                localization_value.language_translation.insert(language.to_string(), translation);
+                localization_value
+                    .language_translation
+                    .insert(language.to_string(), translation);
             }
 
             if localization_value.language_translation.get("en").is_none() {
                 panic!("The key is the translation, this is not supported because it makes parsing difficult. Key: {key}");
             }
 
-            assert!(!key.contains(" "), "Keys should not contain whitespaces: {key}");
+            assert!(
+                !key.contains(" "),
+                "Keys should not contain whitespaces: {key}"
+            );
 
             localizable.single_translation.push(SingleTranslation {
                 key: key.to_string(),
@@ -87,7 +100,8 @@ mod parse {
     }
 
     fn extract_translation(string_unit: &serde_json::Value) -> TranslationValue {
-        let string_unit: StringUnit = serde_json::from_value(string_unit.clone()).unwrap_or_else(|err| panic!("Got err: {:#?} for struct: {:#?}", err, string_unit));
+        let string_unit: StringUnit = serde_json::from_value(string_unit.clone())
+            .unwrap_or_else(|err| panic!("Got err: {:#?} for struct: {:#?}", err, string_unit));
 
         TranslationValue {
             raw: string_unit.value,
@@ -155,8 +169,13 @@ mod types {
                 let mut localized_per_language = LocalizedPerLanguage::default();
 
                 for single_translation in &self.single_translation {
-                    for (language, translation) in &single_translation.localization_value.language_translation {
-                        let mut single_localized_per_language = localized_per_language.language_localized.entry(language.to_string()).or_default();
+                    for (language, translation) in
+                        &single_translation.localization_value.language_translation
+                    {
+                        let mut single_localized_per_language = localized_per_language
+                            .language_localized
+                            .entry(language.to_string())
+                            .or_default();
 
                         single_localized_per_language.push(SingleLocalizedPerLanguage {
                             key: single_translation.key.to_string(),
@@ -175,7 +194,10 @@ mod types {
         }
 
         impl LocalizedPerLanguage {
-            pub fn localized_for_android(&self, config: AndroidLocalizeConfig) -> HashMap<String, String> {
+            pub fn localized_for_android(
+                &self,
+                config: AndroidLocalizeConfig,
+            ) -> HashMap<String, String> {
                 let mut language_xml: HashMap<_, _> = Default::default();
 
                 for (language, translations) in &self.language_localized {
@@ -187,15 +209,24 @@ mod types {
                     for translation in ordered {
                         let content = match &translation.translation {
                             Translation::Localization(localization) => {
-                                format!("<string name=\"{}\">{}</string>", translation.sanitize_key_for_android(), localization.sanitize_for_android())
+                                format!(
+                                    "<string name=\"{}\">{}</string>",
+                                    translation.sanitize_key_for_android(),
+                                    localization.sanitize_for_android()
+                                )
                             }
                             Translation::PluralVariation(plural) => {
-                                let mut temp = vec![
-                                    format!("<plurals name=\"{}\">", translation.sanitize_key_for_android())
-                                ];
+                                let mut temp = vec![format!(
+                                    "<plurals name=\"{}\">",
+                                    translation.sanitize_key_for_android()
+                                )];
 
                                 for single_plural in plural {
-                                    temp.push(format!("<item quantity=\"{}\">{}</item>", single_plural.variate.android_key(), single_plural.translation_value.sanitize_for_android()));
+                                    temp.push(format!(
+                                        "<item quantity=\"{}\">{}</item>",
+                                        single_plural.variate.android_key(),
+                                        single_plural.translation_value.sanitize_for_android()
+                                    ));
                                 }
 
                                 temp.push("</plurals>".to_string());
@@ -208,10 +239,19 @@ mod types {
                     }
 
                     if !config.shared_app_name.is_empty() {
-                        xml.insert(0, format!("<string name=\"app_name\">{}</string>", config.shared_app_name));
+                        xml.insert(
+                            0,
+                            format!(
+                                "<string name=\"app_name\">{}</string>",
+                                config.shared_app_name
+                            ),
+                        );
                     }
 
-                    language_xml.insert(language.to_string(), format!("<resources>\n{}\n</resources>", xml.join("\n")));
+                    language_xml.insert(
+                        language.to_string(),
+                        format!("<resources>\n{}\n</resources>", xml.join("\n")),
+                    );
                 }
 
                 language_xml
@@ -265,15 +305,17 @@ mod types {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::env::current_dir;
     use std::io::Write;
-    use super::*;
 
     // Uncomment to update
     //#[test]
     fn update_android_xmls() {
         let raw = include_bytes!("../test_resources/Localizable.xcstrings");
-        let android_actual = parse_from_bytes(raw).localized_per_language().localized_for_android(Default::default());
+        let android_actual = parse_from_bytes(raw)
+            .localized_per_language()
+            .localized_for_android(Default::default());
         let current = current_dir().unwrap().join("test_resources");
 
         for (language, value) in android_actual {
@@ -294,9 +336,11 @@ mod tests {
         let raw = include_bytes!("../test_resources/Localizable.xcstrings");
         let android_expected_en = include_bytes!("../test_resources/android_xml_en.xml");
         let android_expected_nl = include_bytes!("../test_resources/android_xml_nl.xml");
-        let android_actual = parse_from_bytes(raw).localized_per_language().localized_for_android(Default::default());
+        let android_actual = parse_from_bytes(raw)
+            .localized_per_language()
+            .localized_for_android(Default::default());
 
-        for (language, value) in android_actual { 
+        for (language, value) in android_actual {
             let expect = if &language == "en" {
                 android_expected_en.to_vec()
             } else {
@@ -306,7 +350,7 @@ mod tests {
             };
 
             let expect = String::from_utf8(expect).unwrap();
-            
+
             assert_eq!(value.trim(), expect.trim());
         }
     }
