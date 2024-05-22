@@ -1,0 +1,7 @@
+<resources>
+<plurals name="amount_favorite_riddles">
+<item quantity="one">%1$d favoriet raadsel</item>
+<item quantity="other">%1$d favoriete raadsels</item>
+</plurals>
+<string name="average_guessing_time">Gemiddelde tijd voor oplossen</string>
+</resources>
