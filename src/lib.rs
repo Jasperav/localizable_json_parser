@@ -109,7 +109,7 @@ mod parse {
     }
 }
 
-mod types {
+pub mod types {
     pub(crate) mod input {
         use std::collections::HashMap;
 
