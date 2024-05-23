@@ -275,6 +275,22 @@ mod types {
             PluralVariation(Vec<SinglePluralVariation>),
         }
 
+        impl Translation {
+            pub fn expect_localization(self) -> TranslationValue {
+                match self {
+                    Translation::Localization(tv) => tv,
+                    _ => panic!(),
+                }
+            }
+
+            pub fn expect_plural_variation(self) -> Vec<SinglePluralVariation> {
+                match self {
+                    Translation::PluralVariation(pv) => pv,
+                    _ => panic!(),
+                }
+            }
+        }
+
         #[derive(Debug, Clone, Eq, Hash, PartialEq)]
         pub enum PluralVariate {
             One,
