@@ -129,12 +129,12 @@ mod types {
         #[derive(Debug, Deserialize, Clone)]
         pub(crate) struct StringUnit {
             pub(crate) value: String,
-            pub(crate) state: String,
         }
     }
 
     pub mod output {
         use std::collections::HashMap;
+        use std::path::PathBuf;
 
         #[derive(Debug, Clone, Default)]
         pub struct Localizable {
@@ -172,7 +172,7 @@ mod types {
                     for (language, translation) in
                         &single_translation.localization_value.language_translation
                     {
-                        let mut single_localized_per_language = localized_per_language
+                        let single_localized_per_language = localized_per_language
                             .language_localized
                             .entry(language.to_string())
                             .or_default();
@@ -191,6 +191,7 @@ mod types {
         #[derive(Debug, Clone, Default)]
         pub struct AndroidLocalizeConfig {
             pub shared_app_name: String,
+            pub res_path_to_overwrite_xmls: Option<PathBuf>,
         }
 
         impl LocalizedPerLanguage {
@@ -252,6 +253,27 @@ mod types {
                         language.to_string(),
                         format!("<resources>\n{}\n</resources>", xml.join("\n")),
                     );
+                }
+
+                if let Some(path) = config.res_path_to_overwrite_xmls {
+                    for (language, content) in &language_xml {
+                        let suffix_dir = if language == "en" {
+                            "".to_string()
+                        } else {
+                            format!("-{language}")
+                        };
+
+                        let path_to_file =
+                            path.join(format!("values{suffix_dir}")).join("strings.xml");
+
+                        assert!(
+                            path_to_file.exists(),
+                            "Path does not exists: {:#?}",
+                            path_to_file
+                        );
+
+                        std::fs::write(path_to_file, content).unwrap();
+                    }
                 }
 
                 language_xml
@@ -322,36 +344,27 @@ mod types {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::output::AndroidLocalizeConfig;
     use std::env::current_dir;
-    use std::io::Write;
 
     // Uncomment to update
-    //#[test]
+    #[test]
     fn update_android_xmls() {
         let raw = include_bytes!("../test_resources/Localizable.xcstrings");
-        let android_actual = parse_from_bytes(raw)
-            .localized_per_language()
-            .localized_for_android(Default::default());
         let current = current_dir().unwrap().join("test_resources");
-
-        for (language, value) in android_actual {
-            let expect = if &language == "en" {
-                current.join("android_xml_en.xml")
-            } else {
-                assert_eq!(language, "nl");
-
-                current.join("android_xml_nl.xml")
-            };
-
-            write!(std::fs::File::create(expect).unwrap(), "{}", value).unwrap();
-        }
+        let _ = parse_from_bytes(raw)
+            .localized_per_language()
+            .localized_for_android(AndroidLocalizeConfig {
+                res_path_to_overwrite_xmls: Some(current),
+                ..Default::default()
+            });
     }
 
     #[test]
     fn it_works() {
         let raw = include_bytes!("../test_resources/Localizable.xcstrings");
-        let android_expected_en = include_bytes!("../test_resources/android_xml_en.xml");
-        let android_expected_nl = include_bytes!("../test_resources/android_xml_nl.xml");
+        let android_expected_en = include_bytes!("../test_resources/values/strings.xml");
+        let android_expected_nl = include_bytes!("../test_resources/values-nl/strings.xml");
         let android_actual = parse_from_bytes(raw)
             .localized_per_language()
             .localized_for_android(Default::default());
