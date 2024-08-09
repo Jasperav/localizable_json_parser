@@ -313,7 +313,7 @@ pub mod types {
                 }
 
                 for (language, localized) in &localized_per_language.language_localized {
-                    println!(
+                    log::debug!(
                         "Language: {} word count: {}",
                         language, localized.word_count
                     )
